@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynviaChat - Plataforma de Atendimento Unificada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- NOVA FONTE: Sora (mais moderna) -->
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="https://placehold.co/64x64/00C2FF/FFFFFF?text=S&font=sora">
+
+    <style>
+        body {
+            /* NOVA FONTE E FUNDO */
+            font-family: 'Sora', sans-serif;
+            background-color: #FFFFFF; /* Fundo branco puro */
+            color: #1E293B; /* Texto escuro (slate-800) */
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Cores da Marca */
+        .text-sync-blue { color: #00C2FF; }
+        .bg-sync-blue { background-color: #00C2FF; }
+        .border-sync-blue { border-color: #00C2FF; }
+        
+        .text-sync-purple { color: #7D5FFF; }
+        .bg-sync-purple { background-color: #7D5FFF; }
+        .border-sync-purple { border-color: #7D5FFF; }
+
+        .hero-bg {
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(ellipse at bottom, rgba(0, 194, 255, 0.07) 0%, rgba(255, 255, 255, 0) 60%);
+        }
+        
+        .logo-container:hover .logo-icon { filter: drop-shadow(0 0 15px rgba(0, 194, 255, 0.6)); }
+        .logo-icon { transition: filter 0.3s ease; }
+        
+        /* Animações de entrada */
+        .fade-in-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .fade-in-up.visible { opacity: 1; transform: translateY(0); }
+        .slide-in-left { opacity: 0; transform: translateX(-50px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .slide-in-left.visible { opacity: 1; transform: translateX(0); }
+        .slide-in-right { opacity: 0; transform: translateX(50px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .slide-in-right.visible { opacity: 1; transform: translateX(0); }
+        .fade-in { opacity: 0; transition: opacity 0.6s ease-out; }
+        .fade-in.visible { opacity: 1; }
+
+        /* NOVO BOTÃO COM GRADIENTE */
+        .cta-button { 
+            background: linear-gradient(to right, #00C2FF 0%, #7D5FFF 100%);
+            transition: transform 0.3s ease, box-shadow 0.3s ease; 
+            white-space: nowrap; 
+            color: white;
+            font-weight: 600;
+        }
+        .cta-button:hover { 
+            transform: translateY(-3px) scale(1.03); 
+            box-shadow: 0 10px 20px rgba(0, 194, 255, 0.25); 
+        }
+
+        /* NOVOS CARDS MODERNOS */
+        .modern-card {
+            background-color: #FFFFFF;
+            /* SEM BORDA, SOMBRA MAIS SUAVE */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .modern-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        .plan-card.popular { 
+            border: 2px solid #7D5FFF;
+            transform: scale(1.05); 
+        }
+        
+        .faq-question { cursor: pointer; }
+
+        /* Chat Animado */
+        .chat-message-animated { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+        .chat-message-animated.visible { opacity: 1; transform: translateY(0); }
+        .typing-indicator span { height: 8px; width: 8px; background-color: #9ca3af; border-radius: 50%; display: inline-block; animation: bounce 1.4s infinite ease-in-out both; }
+        .typing-indicator span:nth-of-type(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-of-type(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+
+        /* UI Moderna */
+        .text-gradient-blue-purple {
+            background: linear-gradient(to right, #00C2FF 30%, #7D5FFF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        .mockup-hover { transition: transform 0.4s ease, box-shadow 0.4s ease; }
+        .mockup-hover:hover { transform: scale(1.02); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); }
+        .bg-gradient-cta { background: linear-gradient(to right, #00C2FF 0%, #7D5FFF 100%); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Cabeçalho -->
+    <header x-data="{ open: false }" class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-3 logo-container">
+                <img src="Group 1000004956.png" alt="Logo SynviaChat" class="h-10 w-auto logo-icon" onerror="this.onerror=null; this.src='https://placehold.co/160x40/FFFFFF/00C2FF?text=SynviaChat&font=sora'; this.style.height='40px'; this.style.width='auto';">
+            </a>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#features" class="text-gray-600 hover:text-sync-blue transition font-medium">Recursos</a>
+                <a href="#pricing" class="text-gray-600 hover:text-sync-blue transition font-medium">Planos</a>
+                <a href="#comparativo" class="text-gray-600 hover:text-sync-blue transition font-medium">Compare</a>
+                <a href="#faq" class="text-gray-600 hover:text-sync-blue transition font-medium">FAQ</a>
+            </nav>
+            <div class="flex items-center">
+                <!-- NOVO BOTÃO DE CTA NO HEADER -->
+                <a href="#pricing" class="cta-button hidden md:inline-block px-5 py-2 rounded-lg text-sm">
+                    Começar Agora
+                </a>
+                <button @click="open = !open" class="md:hidden ml-4 text-gray-900">
+                    <svg x-show="!open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    <svg x-show="open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Menu Mobile -->
+        <div x-show="open" @click.away="open = false" class="md:hidden bg-white/95 border-t border-gray-100">
+             <a href="#features" class="block text-center py-3 px-6 text-gray-600 hover:text-sync-blue transition">Recursos</a>
+             <a href="#pricing" class="block text-center py-3 px-6 text-gray-600 hover:text-sync-blue transition">Planos</a>
+             <a href="#comparativo" class="block text-center py-3 px-6 text-gray-600 hover:text-sync-blue transition">Compare</a>
+             <a href="#faq" class="block text-center py-3 px-6 text-gray-600 hover:text-sync-blue transition">FAQ</a>
+             <div class="p-4">
+                 <a href="#pricing" class="cta-button w-full block text-center px-5 py-3 rounded-lg">
+                    Começar Agora
+                </a>
+             </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- SEÇÃO HERO REFORMULADA (2 COLUNAS) -->
+        <section class="hero-bg pt-32 pb-20 md:pt-40 md:pb-32 relative">
+            <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+                <!-- Coluna de Texto (Esquerda) -->
+                <div class="text-center md:text-left">
+                    <div class="fade-in-up inline-flex items-center bg-cyan-100/50 text-sync-blue border border-cyan-500/30 rounded-full px-4 py-1 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <span>Plataforma de Atendimento 360º</span>
+                    </div>
+                    <h1 class="fade-in-up text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight tracking-tighter" style="transition-delay: 100ms;">
+                        Centralize suas conversas. Encante seus <span class="text-gradient-blue-purple">clientes.</span>
+                    </h1>
+                    <p class="fade-in-up mt-6 text-lg md:text-xl text-gray-600 max-w-xl mx-auto md:mx-0" style="transition-delay: 200ms;">
+                        Conecte WhatsApp, Redes Sociais, Site e E-mail em uma plataforma unificada. Transforme seu atendimento com agilidade e inteligência.
+                    </p>
+                    <a href="#pricing" class="fade-in-up cta-button mt-10 inline-block px-8 py-4 rounded-lg text-lg" style="transition-delay: 300ms;">
+                        Comece seu Teste Gratuito
+                    </a>
+                </div>
+                <!-- Coluna de Mockup (Direita) -->
+                <div class="fade-in-up" style="transition-delay: 400ms;">
+                    <div class="relative mockup-hover">
+                        <!-- NOVO MOCKUP DE CHAT (ADAPTADO PARA LIGHT MODE) -->
+                        <div class="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
+                             <div class="bg-gray-100 h-8 flex items-center px-4 border-b border-gray-200">
+                                 <div class="flex space-x-2"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div>
+                                 <div class="flex-1 text-center"><span class="text-gray-500 text-sm">SynviaChat - Plataforma Unificada</span></div>
+                             </div>
+                             <!-- Main Interface -->
+                             <div class="flex h-[450px] md:h-[500px]">
+                                 <!-- Left Sidebar (Simplificado para o Hero) -->
+                                 <div class="w-48 bg-white border-r border-gray-100 flex-col hidden md:flex">
+                                     <div class="p-4 border-b border-gray-100">
+                                         <img src="Group 1000004956.png" alt="Logo SynviaChat" class="h-8 w-auto" onerror="this.onerror=null; this.src='https://placehold.co/120x32/FFFFFF/00C2FF?text=SynviaChat&font=sora';">
+                                     </div>
+                                     <nav class="flex-1 p-4">
+                                         <ul class="space-y-1">
+                                             <li><a href="#" class="flex items-center px-3 py-2 text-sm font-semibold text-white bg-sync-blue rounded-lg"><i class="ri-inbox-line mr-3"></i>Inbox</a></li>
+                                             <li><a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50"><i class="ri-contacts-line mr-3 text-gray-400"></i>Contatos</a></li>
+                                             <li><a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50"><i class="ri-bar-chart-line mr-3 text-gray-400"></i>Relatórios</a></li>
+                                         </ul>
+                                     </nav>
+                                 </div>
+                                 <!-- Conversations List -->
+                                 <div class="w-full md:w-64 bg-gray-50/50 border-r border-gray-100 flex flex-col">
+                                     <div class="p-4 bg-white/70 border-b border-gray-100"><h3 class="font-semibold text-gray-900">Conversas (3)</h3></div>
+                                     <div class="flex-1 overflow-y-auto">
+                                         <div class="p-4 border-b border-gray-100 cursor-pointer bg-cyan-500/10 border-l-4 border-l-sync-blue">
+                                             <div class="flex items-start space-x-3"><div class="relative"><div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center"><i class="ri-whatsapp-line text-white"></i></div></div><div class="flex-1 min-w-0"><h4 class="text-sm font-semibold text-gray-900 truncate">Mariana Costa</h4><p class="text-sm text-gray-700 truncate">Oi! Tenho uma dúvida...</p></div></div>
+                                         </div>
+                                         <div class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-100/50">
+                                             <div class="flex items-start space-x-3"><div class="relative"><div class="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center"><i class="ri-instagram-line text-white"></i></div></div><div class="flex-1 min-w-0"><h4 class="text-sm font-semibold text-gray-900 truncate">Felipe Almeida</h4><p class="text-sm text-gray-600 truncate">Qual o preço do frete?</p></div></div>
+                                         </div>
+                                         <div class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-100/50">
+                                             <div class="flex items-start space-x-3"><div class="relative"><div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center"><i class="ri-messenger-line text-white"></i></div></div><div class="flex-1 min-w-0"><h4 class="text-sm font-semibold text-gray-900 truncate">Clínica Viver</h4><p class="text-sm text-gray-600 truncate">Gostaria de agendar.</p></div></div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <!-- Chat Area (Oculto em telas menores, mas visível no mockup) -->
+                                 <div class="flex-1 flex-col bg-gray-50 hidden md:flex">
+                                     <div class="p-3 border-b border-gray-200 bg-white/70"><div class="flex items-center"><div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3"><i class="ri-whatsapp-line text-white"></i></div><div><h3 class="font-semibold text-gray-900">Mariana Costa</h3></div></div></div>
+                                     <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                                         <div class="flex justify-start"><div class="max-w-md"><div class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2"><p class="text-sm">Oi! Tenho uma dúvida sobre meu pedido #1234.</p></div></div></div>
+                                         <div class="flex justify-end"><div class="max-w-md"><div class="bg-sync-blue text-white rounded-lg px-4 py-2"><p class="text-sm">Olá Mariana! Claro, vou verificar para você agora.</p></div></div></div>
+                                     </div>
+                                     <div class="p-4 border-t border-gray-200 bg-white/70"><div class="flex items-end space-x-3"><div class="flex-1"><textarea placeholder="Digite sua mensagem..." class="w-full px-4 py-2 text-sm bg-gray-100 border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-sync-blue/50" rows="1"></textarea></div><button class="bg-sync-blue text-white px-4 py-2 rounded-lg hover:opacity-90"><i class="ri-send-plane-line"></i></button></div></div>
+                                 </div>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Prova Social (Oculta) -->
+        <section class="py-16 bg-white hidden">
+            <div class="container mx-auto px-6">
+                <h3 class="fade-in-up text-center text-sm font-semibold uppercase text-gray-500 tracking-widest">CONFIADO POR EMPRESAS QUE LIDERAM SEUS MERCADOS</h3>
+                <div class="fade-in-up mt-8 flex flex-wrap items-center justify-around gap-y-6 gap-x-12 opacity-60">
+                    <span class="text-3xl font-bold text-gray-400">EMPRESA<span class="text-sync-blue">X</span></span>
+                    <span class="text-3xl font-bold text-gray-400">Logo<span class="text-sync-purple">Y</span></span>
+                    <span class="text-3xl font-bold text-gray-400">TechCorp</span>
+                    <span class="text-3xl font-bold text-gray-400">Soluções<span class="text-sync-blue">Z</span></span>
+                    <span class="text-3xl font-bold text-gray-400">Inova</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO FEATURES REFORMULADA -->
+        <section id="features" class="py-20 md:py-32 space-y-20 md:space-y-32">
+            
+            <!-- Feature 1: IA (A Solução) -->
+            <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+                <div class="slide-in-right md:order-2">
+                    <span class="text-sm font-bold uppercase tracking-wider text-sync-purple">A SOLUÇÃO</span>
+                    <h2 class="text-3xl md:text-5xl font-bold text-gray-900 leading-tight mt-4">Uma IA que qualifica leads 24h por dia para você.</h2>
+                    <p class="text-gray-600 mt-6 text-lg">Nossa Inteligência Artificial (Synvia AI) faz o primeiro atendimento, entende a necessidade do lead, responde dúvidas com base no seu conteúdo e qualifica a oportunidade. Seu time só entra na conversa quando o lead está pronto para comprar.</p>
+                </div>
+                <div id="animated-mockup-container" class="slide-in-left md:order-1">
+                    <div class="relative rounded-2xl shadow-2xl border border-gray-100 bg-white overflow-hidden max-w-[500px] mx-auto">
+                        <div class="h-10 bg-cyan-500/10 flex items-center px-4 border-b border-gray-200">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                                    <i class="ri-robot-line text-sync-blue text-sm"></i>
+                                </div>
+                                <span class="ml-2 font-medium text-sm text-gray-700">Synvia AI</span>
+                            </div>
+                        </div>
+                        <div id="chat-messages" class="h-[400px] p-4 space-y-4 overflow-y-auto bg-gray-50">
+                            <!-- As mensagens serão injetadas aqui pelo script -->
+                        </div>
+                        <div class="p-3 border-t border-gray-200 bg-white/50">
+                            <div class="flex gap-2">
+                                <input type="text" class="flex-1 px-3 py-1.5 rounded-lg bg-gray-100 text-sm text-gray-700" placeholder="Mensagem bloqueada..." disabled>
+                                <button class="bg-sync-blue text-white px-3 py-1.5 rounded-lg opacity-50 cursor-not-allowed">
+                                    <i class="ri-send-plane-line text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 2: Omnichannel (NOVA ESTRUTURA) -->
+            <div class="container mx-auto px-6">
+                 <div class="text-center max-w-4xl mx-auto">
+                     <div class="fade-in-up">
+                         <span class="text-sm font-bold uppercase tracking-wider text-sync-blue">OMNICHANNEL</span>
+                         <h2 class="text-3xl md:text-5xl font-bold text-gray-900 leading-tight mt-4">Visão 360º do Cliente. <br>Em uma só tela.</h2>
+                         <p class="text-gray-600 mt-6 text-lg">Junte todas as interações do WhatsApp, Instagram, Facebook e Chat do Site. Dê ao seu time o contexto completo para resolver problemas mais rápido.</p>
+                     </div>
+                 </div>
+                 <!-- EFEITO DE HOVER REMOVIDO DA DIV PAI -->
+                 <div class="fade-in-up mt-12 md:mt-16" style="transition-delay: 200ms;">
+                     <!-- IMAGEM DE PLACEHOLDER SUBSTITUÍDA PELO NOVO MOCKUP ANIMADO -->
+                     <div id="omni-chat-mockup" class="max-w-5xl mx-auto">
+                        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+                            <div class="bg-gray-100 h-8 flex items-center px-4 border-b border-gray-200">
+                                <div class="flex space-x-2"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div>
+                                <div class="flex-1 text-center"><span class="text-gray-500 text-sm">SynviaChat - Atendimento (Agente: Ana)</span></div>
+                            </div>
+                            <div class="flex h-[450px]">
+                                <!-- Lista de Conversas (Estático) -->
+                                <div class="w-64 bg-gray-50/50 border-r border-gray-100 flex-col hidden md:flex">
+                                    <div class="p-4 border-b border-gray-100"><h3 class="font-semibold text-gray-900">Inbox (2)</h3></div>
+                                    <div class="p-4 border-b border-gray-100 cursor-pointer bg-cyan-500/10 border-l-4 border-l-sync-blue">
+                                        <h4 class="text-sm font-semibold text-gray-900 truncate">Pedro Silva</h4>
+                                        <p class="text-sm text-gray-700 truncate">Olá, meu pedido #4567...</p>
+                                    </div>
+                                    <div class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-100/50">
+                                        <h4 class="text-sm font-semibold text-gray-900 truncate">Mariana Costa</h4>
+                                        <p class="text-sm text-gray-600 truncate">Oi! Tenho uma dúvida...</p>
+                                    </div>
+                                </div>
+                                <!-- Área do Chat Animado -->
+                                <div class="flex-1 flex flex-col bg-white">
+                                    <div class="p-3 border-b border-gray-200 bg-white/70">
+                                        <h3 class="font-semibold text-gray-900">Pedro Silva</h3>
+                                        <p class="text-xs text-gray-500">Canal: WhatsApp</p>
+                                    </div>
+                                    <div id="omni-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                                        <!-- Mensagens da simulação 2 serão injetadas aqui -->
+                                    </div>
+                                    <div class="p-4 border-t border-gray-200 bg-white/70">
+                                        <textarea placeholder="Digite sua resposta..." class="w-full px-4 py-2 text-sm bg-gray-100 border-gray-200 rounded-lg resize-none" rows="1" disabled></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FIM DO NOVO MOCKUP OMNICHANNEL ANIMADO -->
+                 </div>
+                 <!-- NOVA GRADE DE ÍCONES -->
+                 <div class="grid md:grid-cols-3 gap-8 mt-16 max-w-5xl mx-auto">
+                    <div class="fade-in-up text-center" style="transition-delay: 300ms;">
+                        <div class="bg-sync-blue/10 text-sync-blue w-12 h-12 rounded-lg flex items-center justify-center mx-auto">
+                            <i class="ri-whatsapp-line text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mt-4">WhatsApp API</h3>
+                        <p class="text-gray-600 mt-2">Conecte a API Oficial e tenha múltiplos atendentes no mesmo número.</p>
+                    </div>
+                    <div class="fade-in-up text-center" style="transition-delay: 400ms;">
+                        <div class="bg-sync-blue/10 text-sync-blue w-12 h-12 rounded-lg flex items-center justify-center mx-auto">
+                            <i class="ri-instagram-line text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mt-4">Redes Sociais</h3>
+                        <p class="text-gray-600 mt-2">Responda DMs do Instagram e Messenger direto da sua caixa de entrada.</p>
+                    </div>
+                    <div class="fade-in-up text-center" style="transition-delay: 500ms;">
+                        <div class="bg-sync-blue/10 text-sync-blue w-12 h-12 rounded-lg flex items-center justify-center mx-auto">
+                            <i class="ri-chat-smile-3-line text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mt-4">Chat do Site</h3>
+                        <p class="text-gray-600 mt-2">Instale nosso widget de chat e capture leads direto do seu site.</p>
+                    </div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Seção Feature Grid -->
+        <section class="py-20 md:py-32 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h2 class="fade-in-up text-3xl md:text-5xl font-bold text-gray-900">Tudo que sua equipe precisa para brilhar</h2>
+                    <p class="fade-in-up mt-6 text-lg text-gray-600" style="transition-delay: 100ms;">Do WhatsApp à análise de dados, centralize suas ferramentas e ganhe eficiência.</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8 mt-16">
+                    <div class="fade-in-up modern-card rounded-xl p-8" style="transition-delay: 200ms;">
+                        <div class="bg-sync-blue/10 text-sync-blue w-12 h-12 rounded-lg flex items-center justify-center">
+                            <i class="ri-bar-chart-2-line text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mt-6">Relatórios Inteligentes</h3>
+                        <p class="text-gray-600 mt-2">Entenda o tempo de resposta, volume por canal, CSAT e performance por atendente. Tome decisões baseadas em dados.</p>
+                    </div>
+                    <div class="fade-in-up modern-card rounded-xl p-8" style="transition-delay: 300ms;">
+                        <div class="bg-sync-blue/10 text-sync-blue w-12 h-12 rounded-lg flex items-center justify-center">
+                            <i class="ri-team-line text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mt-6">Gestão de Equipes</h3>
+                        <p class="text-gray-600 mt-2">Distribua conversas automaticamente, crie departamentos (Vendas, Suporte) e monitore a performance do time.</p>
+                    </div>
+                    <div class="fade-in-up modern-card rounded-xl p-8" style="transition-delay: 400ms;">
+                        <div class="bg-sync-blue/10 text-sync-blue w-12 h-12 rounded-lg flex items-center justify-center">
+                            <i class="ri-plug-line text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mt-6">Integrações & ERP</h3>
+                        <p class="text-gray-600 mt-2">Conecte a Synvia AI ao seu CRM, ERP ou banco de dados. Deixe o bot consultar pedidos ou verificar estoque automaticamente.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Seção de Planos -->
+        <section id="pricing" class="py-20 md:py-32">
+             <div class="container mx-auto px-6" x-data="{
+                billingCycle: 'semiannual',
+                prices: { essential: 249, pro: 799, enterprise: 1399 },
+                discounts: {
+                    monthly:    { discount: 0,    months: 1, label: 'Pagamento recorrente' },
+                    quarterly:  { discount: 0.10, months: 3, label: 'Economize 10% | Pague em até 3x' },
+                    semiannual: { discount: 0.20, months: 6, label: 'Economize 20% | Pague em até 6x' },
+                    annual:     { discount: 0.35, months: 12, label: 'Economize 35% | Pague em até 12x' }
+                },
+                calculateMonthly(plan) { 
+                    if (this.billingCycle === 'monthly') return this.prices[plan];
+                    return Math.round(this.prices[plan] * (1 - this.discounts[this.billingCycle].discount)); 
+                },
+                calculateTotal(plan) { 
+                    return this.calculateMonthly(plan) * this.discounts[this.billingCycle].months; 
+                }
+             }">
+                <div class="text-center mb-12">
+                    <h2 class="fade-in-up text-3xl md:text-5xl font-bold text-gray-900">Preços flexíveis para o seu <span class="text-sync-blue">momento</span></h2>
+                    <p class="fade-in-up mt-4 text-gray-600 max-w-2xl mx-auto" style="transition-delay: 100ms;">Escolha a solução que se adapta à sua necessidade. Sem surpresas, com todo o poder do SynviaChat.</p>
+                </div>
+                
+                <div class="fade-in-up mb-12 flex justify-center" style="transition-delay: 200ms;">
+                    <div class="bg-gray-100 border border-gray-200 rounded-lg p-1 inline-grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-1">
+                        <button @click="billingCycle = 'monthly'" :class="billingCycle === 'monthly' ? 'bg-sync-blue text-white' : 'text-gray-500'" class="px-4 py-2 rounded-md font-semibold transition">Mensal</button>
+                        <button @click="billingCycle = 'quarterly'" :class="billingCycle === 'quarterly' ? 'bg-sync-blue text-white' : 'text-gray-500'" class="px-4 py-2 rounded-md font-semibold transition">Trimestral</button>
+                        <button @click="billingCycle = 'semiannual'" :class="billingCycle === 'semiannual' ? 'bg-sync-blue text-white' : 'text-gray-500'" class="px-4 py-2 rounded-md font-semibold transition">Semestral</button>
+                        <button @click="billingCycle = 'annual'" :class="billingCycle === 'annual' ? 'bg-sync-blue text-white' : 'text-gray-500'" class="px-4 py-2 rounded-md font-semibold transition">Anual</button>
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-4 gap-8 items-start max-w-7xl mx-auto md:grid-cols-2">
+                    <!-- Plano Essencial -->
+                    <div class="fade-in-up modern-card plan-card rounded-xl p-6 md:p-8 h-full flex flex-col" style="transition-delay: 300ms;">
+                        <h3 class="text-lg font-bold text-gray-900">Essencial</h3>
+                        <p class="text-gray-500 mt-1 mb-6 text-sm">Para organizar e centralizar seu atendimento inicial.</p>
+                        <div class="mb-2">
+                            <span class="text-4xl font-extrabold text-gray-900" x-text="`R$${calculateMonthly('essential')}`"></span>
+                            <span class="text-gray-500 text-sm">/mês</span>
+                        </div>
+                        <div class="h-10 mb-4">
+                            <span x-show="billingCycle !== 'monthly'" class="text-xs font-semibold text-sync-blue bg-cyan-500/10 px-2 py-1 rounded" x-text="discounts[billingCycle].label"></span>
+                            <p x-show="billingCycle !== 'monthly'" class="text-xs text-gray-500 mt-1" x-text="`Total: R$${calculateTotal('essential').toLocaleString('pt-BR')}`"></p>
+                        </div>
+                        <a href="#" class="w-full text-center cta-button opacity-50 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-semibold mt-6">Plano Legado</a>
+                        <ul class="mt-8 space-y-3 text-sm text-gray-600 flex-grow">
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Até <strong>2 usuários</strong></span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Até <strong>2 Caixas de Entrada</strong></span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Canais: Site, Email, Redes Sociais</span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-gray-400 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg><span class="opacity-60">Conexão WhatsApp</span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-gray-400 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg><span class="opacity-60">Assistente IA</span></li>
+                        </ul>
+                    </div>
+                    <!-- Plano Pro -->
+                    <div class="fade-in-up modern-card plan-card popular rounded-xl p-6 md:p-8 h-full flex flex-col relative" style="transition-delay: 400ms;">
+                        <div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-sync-purple text-white text-xs font-bold px-4 py-1 rounded-full uppercase">Mais Popular</div>
+                        <h3 class="text-lg font-bold text-gray-900">Pro</h3>
+                        <p class="text-gray-500 mt-1 mb-6 text-sm">Para quem busca eficiência e atendimento de ponta com IA.</p>
+                        <div class="mb-2">
+                           <span class="text-4xl font-extrabold text-gray-900" x-text="`R$${calculateMonthly('pro')}`"></span>
+                           <span class="text-gray-500 text-sm">/mês</span>
+                        </div>
+                         <div class="h-10 mb-4">
+                            <span x-show="billingCycle !== 'monthly'" class="text-xs font-semibold text-sync-purple bg-purple-500/10 px-2 py-1 rounded" x-text="discounts[billingCycle].label"></span>
+                            <p x-show="billingCycle !== 'monthly'" class="text-xs text-gray-500 mt-1" x-text="`Total: R$${calculateTotal('pro').toLocaleString('pt-BR')}`"></p>
+                        </div>
+                        <a href="#" class="w-full text-center cta-button px-6 py-3 rounded-lg font-semibold mt-6">Quero o Plano Pro</a>
+                        <ul class="mt-8 space-y-3 text-sm text-gray-600 flex-grow">
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-purple flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Tudo do plano Essencial, e mais:</span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-purple flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Até <strong>5 usuários</strong></span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-purple flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Até <strong>5 Caixas de Entrada</strong></span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-purple flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span><strong>Integração WhatsApp</strong> (Multi-agentes)</span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-purple flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span><strong>Assistente IA (Qualificação)</strong></span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-purple flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Automações e Relatórios</span></li>
+                        </ul>
+                    </div>
+                    <!-- Plano Enterprise -->
+                    <div class="fade-in-up modern-card plan-card rounded-xl p-6 md:p-8 h-full flex flex-col" style="transition-delay: 500ms;">
+                        <h3 class="text-lg font-bold text-gray-900">Enterprise</h3>
+                        <p class="text-gray-500 mt-1 mb-6 text-sm">Solução definitiva para operações de grande escala.</p>
+                         <div class="mb-2">
+                            <span class="text-4xl font-extrabold text-gray-900" x-text="`R$${calculateMonthly('enterprise')}`"></span>
+                            <span class="text-gray-500 text-sm">/mês</span>
+                        </div>
+                        <div class="h-10 mb-4">
+                            <span x-show="billingCycle !== 'monthly'" class="text-xs font-semibold text-sync-blue bg-cyan-500/10 px-2 py-1 rounded" x-text="discounts[billingCycle].label"></span>
+                            <p x-show="billingCycle !== 'monthly'" class="text-xs text-gray-500 mt-1" x-text="`Total: R$${calculateTotal('enterprise').toLocaleString('pt-BR')}`"></p>
+                        </div>
+                        <a href="#" class="w-full text-center cta-button px-6 py-3 rounded-lg font-semibold mt-6">Quero o Plano Enterprise</a>
+                        <ul class="mt-8 space-y-3 text-sm text-gray-600 flex-grow">
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Tudo do plano Pro, e mais:</span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Até <strong>10 usuários</strong></span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Caixas de Entrada <strong>Ilimitadas</strong></span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>SLA e Distribuição Avançada</span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span><strong>Integração com ERP / CRM</strong></span></li>
+                        </ul>
+                    </div>
+                     <!-- Plano Sob Demanda -->
+                    <div class="fade-in-up modern-card plan-card rounded-xl p-6 md:p-8 h-full flex flex-col" style="transition-delay: 600ms;">
+                        <h3 class="text-lg font-bold text-gray-900">Sob Demanda</h3>
+                        <p class="text-gray-500 mt-1 mb-6 text-sm">Uma solução sob medida para sua operação.</p>
+                        <div class="mb-2">
+                            <span class="text-3xl font-extrabold text-gray-900">Personalizado</span>
+                        </div>
+                         <div class="h-10 mb-4">
+                            <p class="text-sm text-gray-500 mt-1">Valores sob consulta</p>
+                        </div>
+                        <a href="#" class="w-full text-center cta-button px-6 py-3 rounded-lg font-semibold mt-6">Fale com um Especialista</a>
+                        <ul class="mt-8 space-y-3 text-sm text-gray-600 flex-grow">
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Tudo do plano Enterprise</span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Infraestrutura Dedicada</span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Desenvolvimento de Módulos</span></li>
+                             <li class="flex items-start"><svg class="w-4 h-4 mr-2 text-sync-blue flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Suporte Prioritário 24/7</span></li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="fade-in-up mt-16 text-center text-gray-600 border-t border-gray-200 pt-8 max-w-3xl mx-auto">
+                     <p class="font-semibold text-gray-900">Sobre a Taxa de Implementação:</p>
+                     <p class="text-sm mt-2">Os planos Pro e Enterprise incluem nosso serviço completo de setup e onboarding. Uma taxa de implementação pode ser aplicada, calculada com base na complexidade do seu projeto (configuração de IA, migração de dados, etc.).</p>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Seção Comparativo -->
+        <section id="comparativo" class="py-20 md:py-32 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="fade-in-up text-3xl md:text-5xl font-bold text-gray-900">A Vantagem <span class="text-sync-blue">SynviaChat</span></h2>
+                    <p class="fade-in-up mt-4 text-gray-600 max-w-2xl mx-auto" style="transition-delay: 100ms;">Entenda por que o SynviaChat entrega mais que as plataformas tradicionais.</p>
+                </div>
+
+                <!-- Novo Layout de Comparação -->
+                <div class="max-w-4xl mx-auto space-y-6">
+                    
+                    <!-- Item de Comparação 1 -->
+                    <div class="fade-in-up bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8" style="transition-delay: 200ms;">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-900">Assistente IA para Qualificação</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <!-- Coluna Tradicional -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-500 mb-3">Plataformas Tradicionais</h4>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="ri-close-circle-line text-red-500 text-2xl mr-3 flex-shrink-0"></i>
+                                    <span>Funcionalidade inexistente ou baseada em regras simples (chatbots antigos).</span>
+                                </div>
+                            </div>
+                            <!-- Coluna SynviaChat -->
+                            <div class="border-t md:border-t-0 md:border-l border-gray-200 pt-6 md:pt-0 md:pl-6">
+                                <h4 class="text-lg font-semibold text-sync-blue mb-3">SynviaChat</h4>
+                                <div class="flex items-center text-gray-800">
+                                    <i class="ri-checkbox-circle-line text-sync-blue text-2xl mr-3 flex-shrink-0"></i>
+                                    <span class="font-medium">IA Generativa (RAG) que entende, qualifica e transfere leads prontos para comprar.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item de Comparação 2 -->
+                    <div class="fade-in-up bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8" style="transition-delay: 300ms;">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-900">Setup e Onboarding</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <!-- Coluna Tradicional -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-500 mb-3">Plataformas Tradicionais</h4>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="ri-close-circle-line text-red-500 text-2xl mr-3 flex-shrink-0"></i>
+                                    <span>Processo "Faça Você Mesmo" (DIY), exigindo horas de tutoriais e configuração manual.</span>
+                                </div>
+                            </div>
+                            <!-- Coluna SynviaChat -->
+                            <div class="border-t md:border-t-0 md:border-l border-gray-200 pt-6 md:pt-0 md:pl-6">
+                                <h4 class="text-lg font-semibold text-sync-blue mb-3">SynviaChat</h4>
+                                <div class="flex items-center text-gray-800">
+                                    <i class="ri-checkbox-circle-line text-sync-blue text-2xl mr-3 flex-shrink-0"></i>
+                                    <span class="font-medium">Serviço "White Glove" (gerenciado) incluso, com um especialista dedicado para configurar e treinar sua equipe.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item de Comparação 3 -->
+                    <div class="fade-in-up bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8" style="transition-delay: 400ms;">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-900">Conexão WhatsApp Multi-agentes</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <!-- Coluna Tradicional -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-500 mb-3">Plataformas Tradicionais</h4>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="ri-close-circle-line text-red-500 text-2xl mr-3 flex-shrink-0"></i>
+                                    <span>Baseado em conexões instáveis (não-oficiais) ou com custos adicionais elevados por agente.</span>
+                                </div>
+                            </div>
+                            <!-- Coluna SynviaChat -->
+                            <div class="border-t md:border-t-0 md:border-l border-gray-200 pt-6 md:pt-0 md:pl-6">
+                                <h4 class="text-lg font-semibold text-sync-blue mb-3">SynviaChat</h4>
+                                <div class="flex items-center text-gray-800">
+                                    <i class="ri-checkbox-circle-line text-sync-blue text-2xl mr-3 flex-shrink-0"></i>
+                                    <span class="font-medium">Conexão estável e escalável, permitindo múltiplos agentes em um só número.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção FAQ -->
+        <section id="faq" class="py-20 md:py-32">
+            <div class="container mx-auto px-6 max-w-3xl">
+                <div class="text-center mb-16">
+                    <h2 class="fade-in-up text-3xl md:text-5xl font-bold text-gray-900">Perguntas <span class="text-sync-blue">Frequentes</span></h2>
+                </div>
+                <div class="space-y-4" x-data="{ open: 1 }">
+                    <!-- FAQ 1 -->
+                    <div class="fade-in-up modern-card rounded-xl" style="transition-delay: 200ms;">
+                        <div @click="open = (open === 1 ? 0 : 1)" class="faq-question p-6 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-900">Como funciona a qualificação de leads por IA?</h3>
+                            <svg class="w-6 h-6 transform transition-transform duration-300" :class="{'rotate-45': open === 1}" fill="none" stroke="#00C2FF" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <div class="overflow-hidden transition-all duration-500 ease-in-out" :style="open === 1 ? { maxHeight: $el.scrollHeight + 'px' } : { maxHeight: '0px' }">
+                           <div class="px-6 pb-6 pt-2 text-gray-600">
+                                <p>Nossa IA (Synvia AI) inicia a conversa, faz perguntas-chave para entender a necessidade e o potencial do lead, e cruza essas informações com sua base de dados. Se o lead atende aos critérios pré-definidos (orçamento, urgência, etc.), ela o transfere para um vendedor humano com todo o histórico.</p>
+                           </div>
+                        </div>
+                    </div>
+                    <!-- FAQ 2 -->
+                     <div class="fade-in-up modern-card rounded-xl" style="transition-delay: 300ms;">
+                        <div @click="open = (open === 2 ? 0 : 2)" class="faq-question p-6 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-900">O que é preciso para conectar o WhatsApp?</h3>
+                             <svg class="w-6 h-6 transform transition-transform duration-300" :class="{'rotate-45': open === 2}" fill="none" stroke="#00C2FF" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                         <div class="overflow-hidden transition-all duration-500 ease-in-out" :style="open === 2 ? { maxHeight: $el.scrollHeight + 'px' } : { maxHeight: '0px' }">
+                           <div class="px-6 pb-6 pt-2 text-gray-600">
+                                <p>Oferecemos diversas formas de conexão para o WhatsApp, adaptadas à sua necessidade. Para conexões mais robustas (como a API Oficial), é recomendado ter um CNPJ e uma conta no Gerenciador de Negócios da Meta. No entanto, temos outras opções de integração. Nós auxiliamos em todo o processo de configuração.</p>
+                           </div>
+                        </div>
+                    </div>
+                    <!-- FAQ 3 -->
+                    <div class="fade-in-up modern-card rounded-xl" style="transition-delay: 400ms;">
+                        <div @click="open = (open === 3 ? 0 : 3)" class="faq-question p-6 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-900">A IA se integra com meu software de gestão (ERP)?</h3>
+                             <svg class="w-6 h-6 transform transition-transform duration-300" :class="{'rotate-45': open === 3}" fill="none" stroke="#00C2FF" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <div class="overflow-hidden transition-all duration-500 ease-in-out" :style="open === 3 ? { maxHeight: $el.scrollHeight + 'px' } : { maxHeight: '0px' }">
+                           <div class="px-6 pb-6 pt-2 text-gray-600">
+                                <p>Sim. Nossos planos Enterprise e Sob Demanda incluem módulos de integração avançada que permitem que nossa IA leia e interaja com seus sistemas de gestão (ERP), CRMs ou bancos de dados. Essa funcionalidade é avaliada e configurada durante nosso processo de onboarding.</p>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção Final CTA -->
+        <section class="py-20 md:py-32 bg-gradient-cta">
+            <div class="container mx-auto px-6 text-center">
+                <div class="fade-in-up">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white leading-tight">Pronto para transformar seu atendimento?</h2>
+                    <p class="text-lg text-white/80 mt-6 max-w-xl mx-auto">Chega de conversas perdidas e clientes frustrados. Centralize sua comunicação com o SynviaChat hoje mesmo.</p>
+                    <a href="#pricing" class="cta-button mt-10 inline-block bg-white text-sync-blue font-bold text-lg px-8 py-4 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
+                        Comece seu Teste Gratuito
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="border-t border-gray-200 py-8 bg-white">
+        <div class="container mx-auto px-6 text-center text-gray-500">
+            <p>&copy; 2024 SynviaChat. Uma solução da SynviaChat Solutions LTDA.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Observer para animações de entrada
+            const animationObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        // Opcional: parar de observar após a animação
+                        // animationObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 }); // Começa a animação quando 10% do item está visível
+
+            // Aplicar a todas as classes de animação
+            document.querySelectorAll('.fade-in-up, .slide-in-left, .slide-in-right, .fade-in').forEach(el => {
+                animationObserver.observe(el);
+            });
+            
+            // Observer para a animação do chat
+            const animatedMockupObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        startChatAnimation();
+                        animatedMockupObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.6 });
+
+            const mockupContainer = document.getElementById('animated-mockup-container');
+            if(mockupContainer) {
+                animatedMockupObserver.observe(mockupContainer);
+            }
+
+            // ADICIONADO NOVO OBSERVER PARA O CHAT OMNI
+            const omniChatObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        startOmniChatAnimation();
+                        omniChatObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.6 });
+
+            const omniChatContainer = document.getElementById('omni-chat-mockup');
+            if(omniChatContainer) {
+                omniChatObserver.observe(omniChatContainer);
+            }
+        });
+
+        function startChatAnimation() {
+            const chatMessagesContainer = document.getElementById('chat-messages');
+            if (!chatMessagesContainer || chatMessagesContainer.getAttribute('data-animated') === 'true') return;
+            
+            chatMessagesContainer.setAttribute('data-animated', 'true');
+            chatMessagesContainer.innerHTML = ''; // Limpa o container
+
+            // Diálogo novo e mais relevante
+            const conversation = [
+                { sender: 'bot', text: 'Olá! Sou a Synvia AI, sua assistente virtual. Como posso te ajudar hoje?' },
+                { sender: 'user', text: 'Oi! Queria ver os preços dos planos, por favor.' },
+                { sender: 'bot', text: 'Claro! Nossos planos começam em R$249. Para eu te indicar o melhor plano, quantos atendentes sua equipe possui hoje?' },
+                { sender: 'user', text: 'Somos 3 pessoas no time de vendas.' },
+                { sender: 'bot', text: 'Perfeito! Para 3 pessoas, o nosso plano Pro é o mais indicado. Ele já inclui a API Oficial do WhatsApp e a minha qualificação de leads. Faz sentido para você?' }
+            ];
+
+            let delay = 500;
+
+            const createMessageElement = (msg) => {
+                const messageWrapper = document.createElement('div');
+                messageWrapper.className = `chat-message-animated flex mb-4 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`;
+
+                if (msg.sender === 'bot') {
+                    messageWrapper.innerHTML = `
+                        <div class="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="ri-robot-line text-sync-blue"></i>
+                        </div>
+                        <div class="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none max-w-[80%] ml-3">
+                            <p class="text-sm" style="font-family: 'Inter', sans-serif;">${msg.text}</p>
+                        </div>
+                    `;
+                } else {
+                    messageWrapper.innerHTML = `
+                        <div class="bg-sync-blue text-white p-3 rounded-lg rounded-br-none max-w-[80%]">
+                            <p class="text-sm" style="font-family: 'Inter', sans-serif;">${msg.text}</p>
+                        </div>
+                    `;
+                }
+                return messageWrapper;
+            };
+            
+            const createTypingIndicator = () => {
+                const typingWrapper = document.createElement('div');
+                typingWrapper.id = 'typing-indicator';
+                typingWrapper.className = 'chat-message-animated flex mb-4 justify-start';
+                typingWrapper.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                        <i class="ri-robot-line text-sync-blue"></i>
+                    </div>
+                    <div class="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none max-w-[80%] ml-3">
+                        <div class="typing-indicator"><span></span><span></span><span></span></div>
+                    </div>
+                `;
+                return typingWrapper;
+            }
+
+            conversation.forEach((message, index) => {
+                setTimeout(() => {
+                    if(message.sender === 'bot') {
+                        const typingIndicator = createTypingIndicator();
+                        chatMessagesContainer.appendChild(typingIndicator);
+                        setTimeout(() => typingIndicator.classList.add('visible'), 50);
+                        
+                        setTimeout(() => {
+                            if (document.body.contains(typingIndicator)) {
+                                chatMessagesContainer.removeChild(typingIndicator);
+                            }
+                            const messageElement = createMessageElement(message);
+                            chatMessagesContainer.appendChild(messageElement);
+                            setTimeout(() => messageElement.classList.add('visible'), 50);
+                            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+                        }, 1500);
+
+                    } else {
+                        const messageElement = createMessageElement(message);
+                        chatMessagesContainer.appendChild(messageElement);
+                        setTimeout(() => messageElement.classList.add('visible'), 50);
+                        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+                    }
+                }, delay);
+                delay += (message.sender === 'bot' ? 2500 : 1500);
+            });
+        }
+
+        // ADICIONADA NOVA FUNÇÃO PARA A ANIMAÇÃO DO CHAT OMNI
+        function startOmniChatAnimation() {
+            const chatMessagesContainer = document.getElementById('omni-chat-messages');
+            if (!chatMessagesContainer || chatMessagesContainer.getAttribute('data-animated') === 'true') return;
+            
+            chatMessagesContainer.setAttribute('data-animated', 'true');
+            chatMessagesContainer.innerHTML = ''; // Limpa o container
+
+            const conversation = [
+                { sender: 'user', text: 'Olá, meu pedido #4567 ainda não chegou.' },
+                { sender: 'agent', text: 'Olá! Deixe-me verificar o status para você, só um momento.' },
+                { sender: 'agent', text: 'Verifiquei aqui e seu pedido saiu para entrega hoje! O código de rastreio é BR987654.' },
+                { sender: 'user', text: 'Ufa, obrigado! :)' }
+            ];
+
+            let delay = 500;
+
+            const createMessageElement = (msg) => {
+                const messageWrapper = document.createElement('div');
+                messageWrapper.className = `chat-message-animated flex mb-4 ${msg.sender === 'user' ? 'justify-start' : 'justify-end'}`;
+
+                if (msg.sender === 'agent') {
+                    // Mensagem do Agente (direita)
+                    messageWrapper.innerHTML = `
+                        <div class="bg-sync-blue text-white p-3 rounded-lg rounded-br-none max-w-[80%]">
+                            <p class="text-sm" style="font-family: 'Inter', sans-serif;">${msg.text}</p>
+                            <span class="text-xs text-white/70 block text-right mt-1">Agente: Ana</span>
+                        </div>
+                    `;
+                } else {
+                    // Mensagem do Usuário (esquerda)
+                    messageWrapper.innerHTML = `
+                        <div class="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none max-w-[80%]">
+                            <p class="text-sm" style="font-family: 'Inter', sans-serif;">${msg.text}</p>
+                        </div>
+                    `;
+                }
+                return messageWrapper;
+            };
+            
+            const createTypingIndicator = () => {
+                const typingWrapper = document.createElement('div');
+                typingWrapper.id = 'omni-typing-indicator';
+                typingWrapper.className = 'chat-message-animated flex mb-4 justify-end';
+                typingWrapper.innerHTML = `
+                    <div class="bg-sync-blue text-white p-3 rounded-lg rounded-br-none max-w-[80%]">
+                        <div class="typing-indicator"><span></span><span></span><span></span></div>
+                    </div>
+                `;
+                return typingWrapper;
+            }
+
+            conversation.forEach((message, index) => {
+                setTimeout(() => {
+                    if(message.sender === 'agent') {
+                        const typingIndicator = createTypingIndicator();
+                        chatMessagesContainer.appendChild(typingIndicator);
+                        setTimeout(() => typingIndicator.classList.add('visible'), 50);
+                        
+                        setTimeout(() => {
+                            if (document.body.contains(typingIndicator)) {
+                                chatMessagesContainer.removeChild(typingIndicator);
+                            }
+                            const messageElement = createMessageElement(message);
+                            chatMessagesContainer.appendChild(messageElement);
+                            setTimeout(() => messageElement.classList.add('visible'), 50);
+                            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+                        }, 1500);
+
+                    } else {
+                        const messageElement = createMessageElement(message);
+                        chatMessagesContainer.appendChild(messageElement);
+                        setTimeout(() => messageElement.classList.add('visible'), 50);
+                        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+                    }
+                }, delay);
+                delay += (message.sender === 'agent' ? 2500 : 1500);
+            });
+        }
+    </script>
+</body>
+</html>
